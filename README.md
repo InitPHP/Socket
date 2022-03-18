@@ -2,6 +2,8 @@
 
 PHP Socket (TCP, TLS, UDP, SSL) Server/Client Library
 
+[![Latest Stable Version](http://poser.pugx.org/initphp/socket/v)](https://packagist.org/packages/initphp/socket) [![Total Downloads](http://poser.pugx.org/initphp/socket/downloads)](https://packagist.org/packages/initphp/socket) [![Latest Unstable Version](http://poser.pugx.org/initphp/socket/v/unstable)](https://packagist.org/packages/initphp/socket) [![License](http://poser.pugx.org/initphp/socket/license)](https://packagist.org/packages/initphp/socket) [![PHP Version Require](http://poser.pugx.org/initphp/socket/require/php)](https://packagist.org/packages/initphp/socket)
+
 ## Requirements
 
 - PHP 7.4 or higher
