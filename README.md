@@ -34,7 +34,7 @@ composer require initphp/socket
 public static function server(int $handler = Socket::TCP, string $host = '', int $port = 0, null|string|float $argument = null): \InitPHP\Socket\Interfaces\SocketServerInterface
 ```
 
-- `$handler` : `Socket::SSL`, `Socket::TCP`, `Socket::TLS` or `Socket::UDP`
+- `$handler` : `Socket::SSL`, `Socket::TCP`, `Socket::TLS` or `Socket::UDP` 
 - `$host` : Identifies the socket host. If not defined or left blank, it will throw an error.
 - `$port` : Identifies the socket port. If not defined or left blank, it will throw an error.
 - `$argument` : This value is the value that will be sent as 3 parameters to the constructor method of the handler.
