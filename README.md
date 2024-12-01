@@ -94,6 +94,12 @@ public function live(callable $callback): void;
 public function wait(int $second): void;
 ```
 
+**`broadcast()` :**
+
+```php
+public function broadcast(string $message, array|string|int|null $clients = null): bool;
+```
+
 #### Special methods for TLS and SSL.
 
 TLS and SSL work similarly.
@@ -143,23 +149,32 @@ _**Example :**_
 ```php
 require_once "../vendor/autoload.php";
 use \InitPHP\Socket\Socket;
-use \InitPHP\Socket\Interfaces\SocketServerInterface;
+use \InitPHP\Socket\Interfaces\{SocketServerInterface, SocketServerClientInterface};
 
 $server = Socket::server(Socket::TLS, '127.0.0.1', 8080);
 $server->connection();
 
-$server->live(function (SocketServerInterface $socket) {
-    switch ($socket->read()) {
-        case 'exit' : 
-            $socket->write('Goodbye!');
-            return;
-        case 'write' :
-            $socket->write('Run write command.');
-        break;
-        case 'read' :
-            $socket->write('Run read command.');
-        break;
-        default: return;
+$server->live(function (SocketServerInterface $socket, SocketServerClientInterface $client) {
+    $read = $client->read();
+    if (!$read) {
+        return;
+    }
+    if (in_array($read, ['exit', 'quit'])) {
+            $client->push("Goodbye!");
+            $client->close();
+        return;
+    } else if (preg_match('/^REGISTER\s+([\w]{3,})$/i', $read, $matches)) {
+        // REGISTER admin
+        $name = trim(mb_substr($read, 9));
+        $socket->clientRegister($name, $client);
+    } else if (preg_match('/^SEND\s@([\w]+)\s(.*)$/i', $read, $matches)) {
+        // SEND @admin Hello World
+        $pushSocketName = $matches[1];
+        $message = $matches[2];
+        $socket->broadcast($message, [$pushSocketName])
+    } else {
+        $message = trim($read);
+        !empty($message) && $socket->broadcast($message);
     }
 });
 ```

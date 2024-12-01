@@ -18,10 +18,8 @@ namespace InitPHP\Socket\Server;
 use InitPHP\Socket\Common\{BaseServer, ServerTrait};
 use InitPHP\Socket\Interfaces\SocketServerInterface;
 
+use InitPHP\Socket\Socket;
 use function socket_close;
-use function socket_recvfrom;
-use function socket_sendto;
-use function strlen;
 
 class UDP extends BaseServer implements SocketServerInterface
 {
@@ -36,36 +34,29 @@ class UDP extends BaseServer implements SocketServerInterface
         $this->socket = $socket;
         $this->host = $host;
         $this->port = $port;
+
+        $this->clients[] = (new ServerClient([
+            'type'          => Socket::UDP,
+            'host'          => $this->host,
+            'port'          => $this->port,
+        ]))->__setSocket($socket);
+
         return $this;
     }
 
     public function disconnect(): bool
     {
-        if(isset($this->socket)){
+        if (!empty($this->clients)) {
+            foreach ($this->clients as $client) {
+                $client->close();
+            }
+        }
+
+        if(!empty($this->socket)){
             socket_close($this->socket);
         }
+
         return true;
-    }
-
-    /**
-     * @param int $length
-     * @param int $type <p>MSG_OBB, MSG_PEEK, MSG_WAITALL or MSG_DONTWAIT</p>
-     * @return string|null
-     * @throws \InitPHP\Socket\Exception\SocketException
-     */
-    public function read(int $length = 1024, int $type = 0): ?string
-    {
-        $read = socket_recvfrom($this->getSocket(), $content, $length, $type, $name, $port);
-        if($read === FALSE){
-            return null;
-        }
-        return empty($content) ? null : $content;
-    }
-
-    public function write(string $string, int $type = 0): ?int
-    {
-        $write = socket_sendto($this->getSocket(), $string, strlen($string), $type, $this->getHost(), $this->getPort());
-        return $write === FALSE ? null : $write;
     }
 
 }

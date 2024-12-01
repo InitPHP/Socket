@@ -15,6 +15,8 @@ declare(strict_types=1);
 
 namespace InitPHP\Socket\Common;
 
+use InitPHP\Socket\Server\ServerClient;
+use InitPHP\Socket\Socket;
 use InitPHP\Socket\Exception\{SocketConnectionException, SocketException, SocketInvalidArgumentException};
 
 use const STREAM_CRYPTO_METHOD_SSLv2_SERVER;
@@ -32,9 +34,6 @@ use function stream_context_create;
 use function ini_get;
 use function stream_socket_accept;
 use function fclose;
-use function fread;
-use function fwrite;
-use function strlen;
 use function stream_set_timeout;
 use function stream_set_blocking;
 use function stream_socket_enable_crypto;
@@ -47,10 +46,6 @@ trait StreamServerTrait
     protected ?float $timeout = null;
 
     protected array $options = [];
-
-
-    /** @var resource */
-    protected $accept;
 
     public function __construct(string $host, int $port, $argument)
     {
@@ -75,49 +70,66 @@ trait StreamServerTrait
             throw new SocketConnectionException('Connection Error : ' . $errStr);
         }
         $this->socket = $socket;
-        $this->accept = $accept;
+
+        $this->clients[] = (new ServerClient([
+            'type'          => $this->type === 'tls' ? Socket::TLS : Socket::SSL,
+            'host'          => $this->getHost(),
+            'port'          => $this->getPort(),
+        ]))->__setSocket($accept);
+
         return $this;
     }
 
     public function disconnect(): bool
     {
-        if(isset($this->socket)){
+        if (!empty($this->clients)) {
+            foreach ($this->clients as $client) {
+                $client->close();
+            }
+        }
+
+        if(!empty($this->socket)){
             fclose($this->socket);
         }
-        if(isset($this->accept)){
-            fclose($this->accept);
-        }
+
         return true;
-    }
-
-    public function read(int $length = 1024): ?string
-    {
-        $read = fread($this->getSocket(), $length);
-        return $read === FALSE ? null : $read;
-    }
-
-    public function write(string $string): ?int
-    {
-        $write = fwrite($this->getSocket(), $string, strlen($string));
-        return $write === FALSE ? null : $write;
     }
 
     public function timeout(int $second): self
     {
-        stream_set_timeout($this->accept, $second);
+        if (!empty($this->clients)) {
+            foreach ($this->clients as $client) {
+                stream_set_timeout($client->getSocket(), $second);
+            }
+            ServerClient::__setCallbacks('stream_set_timeout', ['{socket}', $second]);
+        }
+
         return $this;
     }
 
     public function blocking(bool $mode = true): self
     {
-        stream_set_blocking($this->accept, $mode);
+        if (!empty($this->clients)) {
+            foreach ($this->clients as $client) {
+                stream_set_blocking($client->getSocket(), $mode);
+            }
+            ServerClient::__setCallbacks('stream_set_blocking', ['{socket}', $mode]);
+        }
+
+
         return $this;
     }
 
     public function crypto(?string $method = null): self
     {
         if(empty($method)){
-            stream_socket_enable_crypto($this->accept, false);
+            if (!empty($this->clients)) {
+                foreach ($this->clients as $client) {
+                    stream_socket_enable_crypto($client->getSocket(), false);
+                }
+                ServerClient::__setCallbacks('stream_socket_enable_crypto', ['{socket}', false]);
+            }
+            
             return $this;
         }
         $method = strtolower($method);
@@ -134,7 +146,14 @@ trait StreamServerTrait
         if(!isset($algos[$method])){
             throw new SocketException('Unsupported crypto method. This library supports: ' . implode(', ', array_keys($algos)));
         }
-        stream_socket_enable_crypto($this->accept, true, $algos[$method]);
+
+        if (!empty($this->clients)) {
+            foreach ($this->clients as $client) {
+                stream_socket_enable_crypto($client->getSocket(), true, $algos[$method]);
+            }
+            ServerClient::__setCallbacks('stream_socket_enable_crypto', ['{socket}', true, $algos[$method]]);
+        }
+
         return $this;
     }
 
