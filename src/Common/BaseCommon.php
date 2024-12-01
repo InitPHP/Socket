@@ -17,6 +17,10 @@ namespace InitPHP\Socket\Common;
 
 use InitPHP\Socket\Exception\{SocketException, SocketInvalidArgumentException};
 
+use const AF_INET;
+use const AF_INET6;
+use const AF_UNIX;
+
 use function getprotobyname;
 use function socket_create;
 use function socket_last_error;
@@ -73,6 +77,7 @@ trait BaseCommon
         if(!isset($this->socket)){
             throw new SocketException('The socket cannot be reachable before the connection is made.');
         }
+
         return $this->socket;
     }
 
