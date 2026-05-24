@@ -1,81 +1,94 @@
 <?php
-/**
- * TCP.php
- *
- * This file is part of InitPHP.
- *
- * @author     Muhammet ŞAFAK <info@muhammetsafak.com.tr>
- * @copyright  Copyright © 2022 InitPHP
- * @license    http://initphp.github.io/license.txt  MIT
- * @version    1.0
- * @link       https://www.muhammetsafak.com.tr
- */
 
 declare(strict_types=1);
 
 namespace InitPHP\Socket\Client;
 
-use \InitPHP\Socket\Exception\{SocketConnectionException, SocketInvalidArgumentException};
-use \InitPHP\Socket\Common\BaseClient;
-use \InitPHP\Socket\Interfaces\SocketClientInterface;
+use InitPHP\Socket\Enum\Domain;
+use InitPHP\Socket\Exception\SocketConnectionException;
+use InitPHP\Socket\Exception\SocketException;
+use Socket;
+
+use function getprotobyname;
+use function socket_close;
+use function socket_connect;
+use function socket_create;
+use function socket_last_error;
+use function socket_read;
+use function socket_strerror;
+use function socket_write;
 
 use const PHP_BINARY_READ;
 use const SOCK_STREAM;
 
-use function is_string;
-use function socket_connect;
-use function socket_close;
-use function socket_read;
-use function socket_write;
-use function strlen;
-
-class TCP extends BaseClient implements SocketClientInterface
+final class TCP extends AbstractClient
 {
+    private ?Socket $socket = null;
 
-    protected ?string $domain;
-
-    /**
-     * @param string $host
-     * @param int $port
-     * @param $argument <p>domain</p>
-     */
-    public function __construct(string $host, int $port, $argument)
-    {
-        $this->setHost($host)->setPort($port);
-        if($argument !== null && !is_string($argument)){
-            throw new SocketInvalidArgumentException('The TCP client must have a value pointing to the argument domain. Only "v4", "v6" or "unix"');
-        }
-        $this->domain = $argument;
+    public function __construct(
+        string $host,
+        int $port,
+        private readonly Domain $domain = Domain::V4,
+    ) {
+        parent::__construct($host, $port);
     }
 
-    public function connection(): self
+    public function connect(): static
     {
-        $socket = $this->createSocketSource('tcp', SOCK_STREAM, $this->domain);
-        if(socket_connect($socket, $this->getHost(), $this->getPort()) === FALSE){
-            throw new SocketConnectionException('Socket Connection Error : ' . $this->getLastError());
+        if ($this->socket !== null) {
+            throw new SocketException('Client is already connected.');
+        }
+        $proto = getprotobyname('tcp');
+        $socket = @socket_create($this->domain->toAddressFamily(), SOCK_STREAM, $proto === false ? 0 : $proto);
+        if (!$socket instanceof Socket) {
+            throw new SocketException('socket_create failed: ' . socket_strerror(socket_last_error()));
+        }
+        if (@socket_connect($socket, $this->host, $this->port) === false) {
+            $err = socket_strerror(socket_last_error($socket));
+            socket_close($socket);
+            throw new SocketConnectionException('socket_connect failed: ' . $err);
         }
         $this->socket = $socket;
+
         return $this;
     }
 
     public function disconnect(): bool
     {
-        if(isset($this->socket)){
-            socket_close($this->socket);
+        if ($this->socket === null) {
+            return true;
         }
+        @socket_close($this->socket);
+        $this->socket = null;
+
         return true;
     }
 
     public function read(int $length = 1024, int $type = PHP_BINARY_READ): ?string
     {
-        $read = socket_read($this->getSocket(), $length, $type);
-        return $read === FALSE ? null : $read;
+        if ($this->socket === null) {
+            return null;
+        }
+        $bytes = @socket_read($this->socket, $length, $type);
+        if ($bytes === false || $bytes === '') {
+            return null;
+        }
+
+        return $bytes;
     }
 
-    public function write(string $string): ?int
+    public function write(string $data): ?int
     {
-        $write = socket_write($this->getSocket(), $string, strlen($string));
-        return $write === FALSE ? null : $write;
+        if ($this->socket === null) {
+            return null;
+        }
+        $written = @socket_write($this->socket, $data, \strlen($data));
+
+        return $written === false ? null : $written;
     }
 
+    public function getSocket(): ?Socket
+    {
+        return $this->socket;
+    }
 }

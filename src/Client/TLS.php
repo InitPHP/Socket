@@ -1,28 +1,15 @@
 <?php
-/**
- * TLS.php
- *
- * This file is part of InitPHP.
- *
- * @author     Muhammet ŞAFAK <info@muhammetsafak.com.tr>
- * @copyright  Copyright © 2022 InitPHP
- * @license    http://initphp.github.io/license.txt  MIT
- * @version    1.0
- * @link       https://www.muhammetsafak.com.tr
- */
 
 declare(strict_types=1);
 
 namespace InitPHP\Socket\Client;
 
-use \InitPHP\Socket\Common\{StreamClientTrait, BaseClient};
-use \InitPHP\Socket\Interfaces\SocketClientInterface;
+use InitPHP\Socket\Enum\Transport;
 
-class TLS extends BaseClient implements SocketClientInterface
+final class TLS extends AbstractStreamClient
 {
-
-    use StreamClientTrait;
-
-    protected string $type = 'tls';
-
+    public function __construct(string $host, int $port, ?float $timeout = null)
+    {
+        parent::__construct($host, $port, Transport::TLS, $timeout);
+    }
 }
