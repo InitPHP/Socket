@@ -75,6 +75,46 @@ final class AbstractServerBroadcastTest extends TestCase
         $server->wait(-1.0);
     }
 
+    public function testWaitZeroIsANoop(): void
+    {
+        $server = new TestableServer('127.0.0.1', 9000);
+        $start = microtime(true);
+        $server->wait(0.0);
+        self::assertLessThan(0.01, microtime(true) - $start);
+    }
+
+    public function testWaitPositiveSleeps(): void
+    {
+        $server = new TestableServer('127.0.0.1', 9000);
+        $start = microtime(true);
+        $server->wait(0.05);
+        self::assertGreaterThanOrEqual(0.04, microtime(true) - $start);
+    }
+
+    public function testBroadcastByIdSkipsEvictedKey(): void
+    {
+        $server = new TestableServer('127.0.0.1', 9000);
+        $client = $this->makeConnection($channel);
+        $key = $server->attach($client);
+        $server->register('ghost', $client);
+
+        // Force the underlying client out without going through the public
+        // close-then-eviction path, so 'ghost' still maps to an unknown key.
+        $server->forceEvict($key);
+
+        // No write should reach anyone; the orphaned-id branch must short-circuit.
+        self::assertTrue($server->broadcast('hi', 'ghost'));
+        self::assertSame([], $this->writesOf($channel));
+    }
+
+    public function testIsRunningIsFalseByDefault(): void
+    {
+        $server = new TestableServer('127.0.0.1', 9000);
+        self::assertFalse($server->isRunning());
+        $server->stop();
+        self::assertFalse($server->isRunning());
+    }
+
     public function testGetClientsKeyedByIdWhenRegistered(): void
     {
         $server = new TestableServer('127.0.0.1', 9000);
@@ -121,6 +161,11 @@ final class TestableServer extends AbstractServer
     public function attach(SocketConnectionInterface $client): int
     {
         return $this->addClient($client);
+    }
+
+    public function forceEvict(int $key): void
+    {
+        $this->evict($key);
     }
 
     public function listen(): static

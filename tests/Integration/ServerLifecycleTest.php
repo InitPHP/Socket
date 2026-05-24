@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace InitPHP\Socket\Tests\Integration;
 
+use InitPHP\Socket\Client\TCP as TcpClient;
 use InitPHP\Socket\Exception\SocketException;
+use InitPHP\Socket\Interfaces\SocketConnectionInterface;
+use InitPHP\Socket\Interfaces\SocketServerInterface;
 use InitPHP\Socket\Server\TCP as TcpServer;
 
 final class ServerLifecycleTest extends IntegrationTestCase
@@ -55,28 +58,34 @@ final class ServerLifecycleTest extends IntegrationTestCase
         $server->tick(static fn () => null, 0.0);
     }
 
-    public function testStopExitsLiveLoopOnNextTick(): void
+    public function testStopFromInsideCallbackExitsLiveLoop(): void
     {
         $port = $this->findFreePort();
         $server = new TcpServer('127.0.0.1', $port);
         $server->listen();
         $this->registerCleanup($server->close(...));
 
-        $iterations = 0;
-        $callback = static function () use ($server, &$iterations): void {
-            ++$iterations;
-            if ($iterations >= 1) {
-                $server->stop();
-            }
-        };
+        $client = new TcpClient('127.0.0.1', $port);
+        $client->connect();
+        $this->registerCleanup($client->disconnect(...));
 
-        // No clients ever connect, so tick() will idle out within idleSeconds.
-        // We rely on stop() being called externally via a tiny shim that
-        // hooks into a no-op activity: drive tick() ourselves a few times.
-        $server->stop();
+        // Bring the client into the server's accept queue, then feed a byte
+        // so the next live() iteration actually fires the callback.
+        $server->tick(static fn () => null, 0.2);
+        self::assertCount(1, $server->getClients());
+        self::assertSame(4, $client->write('stop'));
+
+        $invocations = 0;
+        $server->live(
+            static function (SocketServerInterface $srv, SocketConnectionInterface $conn) use (&$invocations): void {
+                ++$invocations;
+                $conn->read(1024);
+                $srv->stop();
+            },
+            0.05,
+        );
+
+        self::assertSame(1, $invocations);
         self::assertFalse($server->isRunning());
-        // After stop() the live loop should return immediately.
-        $server->live($callback, 0.01);
-        self::assertSame(0, $iterations, 'live() should not enter the loop after stop()');
     }
 }

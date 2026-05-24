@@ -19,36 +19,48 @@ final class TlsEchoTest extends IntegrationTestCase
         $port = $this->findFreePort();
         $certPath = $this->selfSignedCertPath();
 
+        // The TLS server must run in the parent process so its code paths
+        // show up in our coverage report. We fork the *client* into a
+        // child process instead — its job is to drive the handshake and
+        // exchange one message.
         $pid = pcntl_fork();
         self::assertNotSame(-1, $pid, 'pcntl_fork failed');
 
         if ($pid === 0) {
-            $exitCode = $this->runServerChild($port, $certPath);
+            $exitCode = $this->runClientChild($port);
             // Hard-exit so PHPUnit shutdown handlers don't run in the child.
             exit($exitCode);
         }
 
         try {
-            // Give the child a moment to bind before we connect.
-            usleep(150_000);
+            $server = (new TlsServer('127.0.0.1', $port, 2.0))
+                ->option('local_cert', $certPath)
+                ->option('allow_self_signed', true)
+                ->option('verify_peer', false);
+            $server->listen();
 
-            $client = (new TlsClient('127.0.0.1', $port, 2.0))
-                ->option('verify_peer', false)
-                ->option('verify_peer_name', false)
-                ->option('allow_self_signed', true);
-            $client->connect();
-
-            self::assertSame(9, $client->write('hello-tls'));
-
-            $reply = $this->awaitRead($client);
-            $client->disconnect();
+            $received = null;
+            $deadline = microtime(true) + 5.0;
+            while ($received === null && microtime(true) < $deadline) {
+                $server->tick(
+                    static function (SocketServerInterface $srv, SocketConnectionInterface $conn) use (&$received): void {
+                        $payload = $conn->read(1024);
+                        if ($payload !== null) {
+                            $received = $payload;
+                            $conn->write('echo:' . $payload);
+                        }
+                    },
+                    0.1,
+                );
+            }
+            $server->close();
 
             $status = 0;
             pcntl_waitpid($pid, $status);
-            self::assertTrue(pcntl_wifexited($status), 'child did not exit cleanly');
-            self::assertSame(0, pcntl_wexitstatus($status), 'server child reported failure');
+            self::assertTrue(pcntl_wifexited($status), 'client child did not exit cleanly');
+            self::assertSame(0, pcntl_wexitstatus($status), 'client child reported failure');
 
-            self::assertSame('echo:hello-tls', $reply);
+            self::assertSame('hello-tls', $received);
         } finally {
             if (posix_kill($pid, 0)) {
                 posix_kill($pid, \SIGTERM);
@@ -57,49 +69,33 @@ final class TlsEchoTest extends IntegrationTestCase
         }
     }
 
-    private function runServerChild(int $port, string $certPath): int
+    private function runClientChild(int $port): int
     {
         try {
-            $server = (new TlsServer('127.0.0.1', $port, 2.0))
-                ->option('local_cert', $certPath)
-                ->option('allow_self_signed', true)
-                ->option('verify_peer', false);
-            $server->listen();
+            // Give the parent a beat to bind before we connect.
+            usleep(150_000);
 
-            $deadline = microtime(true) + 4.0;
-            $handled = false;
-            while (!$handled && microtime(true) < $deadline) {
-                $server->tick(
-                    static function (SocketServerInterface $srv, SocketConnectionInterface $conn) use (&$handled): void {
-                        $data = $conn->read(1024);
-                        if ($data !== null) {
-                            $conn->write('echo:' . $data);
-                            $handled = true;
-                        }
-                    },
-                    0.05,
-                );
+            $client = (new TlsClient('127.0.0.1', $port, 2.0))
+                ->option('verify_peer', false)
+                ->option('verify_peer_name', false)
+                ->option('allow_self_signed', true);
+            $client->connect();
+            $client->write('hello-tls');
+
+            $reply = null;
+            for ($i = 0; $i < 200 && $reply === null; ++$i) {
+                $reply = $client->read(1024);
+                if ($reply === null) {
+                    usleep(20_000);
+                }
             }
-            $server->close();
+            $client->disconnect();
 
-            return $handled ? 0 : 10;
+            return $reply === 'echo:hello-tls' ? 0 : 11;
         } catch (\Throwable $e) {
-            fwrite(\STDERR, 'tls server child error: ' . $e->getMessage() . "\n");
+            fwrite(\STDERR, 'tls client child error: ' . $e->getMessage() . "\n");
 
             return 1;
         }
-    }
-
-    private function awaitRead(TlsClient $client): ?string
-    {
-        for ($i = 0; $i < 100; ++$i) {
-            $chunk = $client->read(1024);
-            if ($chunk !== null) {
-                return $chunk;
-            }
-            usleep(20_000);
-        }
-
-        return null;
     }
 }
