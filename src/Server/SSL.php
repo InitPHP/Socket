@@ -1,28 +1,15 @@
 <?php
-/**
- * SSL.php
- *
- * This file is part of InitPHP.
- *
- * @author     Muhammet ŞAFAK <info@muhammetsafak.com.tr>
- * @copyright  Copyright © 2022 InitPHP
- * @license    http://initphp.github.io/license.txt  MIT
- * @version    1.0
- * @link       https://www.muhammetsafak.com.tr
- */
 
 declare(strict_types=1);
 
 namespace InitPHP\Socket\Server;
 
-use InitPHP\Socket\Common\{BaseServer, StreamServerTrait};
-use InitPHP\Socket\Interfaces\SocketServerInterface;
+use InitPHP\Socket\Enum\Transport;
 
-class SSL extends BaseServer implements SocketServerInterface
+final class SSL extends AbstractStreamServer
 {
-
-    use StreamServerTrait;
-
-    protected string $type = 'ssl';
-
+    public function __construct(string $host, int $port, ?float $timeout = null)
+    {
+        parent::__construct($host, $port, Transport::SSL, $timeout);
+    }
 }
