@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace InitPHP\Socket\Channel;
 
+use InitPHP\Socket\Exception\SocketInvalidArgumentException;
 use InitPHP\Socket\Interfaces\ChannelInterface;
 
 use function fclose;
@@ -22,7 +23,7 @@ final class StreamChannel implements ChannelInterface
     public function __construct($stream)
     {
         if (!\is_resource($stream)) {
-            throw new \InvalidArgumentException('StreamChannel expects a stream resource.');
+            throw new SocketInvalidArgumentException('StreamChannel expects a stream resource.');
         }
         $this->stream = $stream;
     }

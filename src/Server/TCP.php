@@ -8,6 +8,7 @@ use InitPHP\Socket\Channel\TcpChannel;
 use InitPHP\Socket\Enum\Domain;
 use InitPHP\Socket\Exception\SocketConnectionException;
 use InitPHP\Socket\Exception\SocketException;
+use InitPHP\Socket\Exception\SocketInvalidArgumentException;
 use InitPHP\Socket\Exception\SocketListenException;
 use Socket;
 
@@ -42,7 +43,7 @@ final class TCP extends AbstractServer
     public function backlog(int $backlog): self
     {
         if ($backlog < 1) {
-            throw new \InvalidArgumentException('backlog must be at least 1.');
+            throw new SocketInvalidArgumentException('backlog must be at least 1.');
         }
         $this->backlog = $backlog;
 

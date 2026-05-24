@@ -82,6 +82,11 @@ interface SocketServerInterface
     public function stop(): void;
 
     /**
+     * Returns true while the {@see self::live()} loop is running.
+     */
+    public function isRunning(): bool;
+
+    /**
      * Sleep for $seconds (supports sub-second precision).
      */
     public function wait(float $seconds): void;
