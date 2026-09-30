@@ -5,6 +5,7 @@
 [![License](https://poser.pugx.org/initphp/socket/license)](https://packagist.org/packages/initphp/socket)
 [![PHP Version Require](https://poser.pugx.org/initphp/socket/require/php)](https://packagist.org/packages/initphp/socket)
 [![CI](https://github.com/InitPHP/Socket/actions/workflows/ci.yml/badge.svg)](https://github.com/InitPHP/Socket/actions/workflows/ci.yml)
+[![Designed & Maintained with Tan](https://www.muhammetsafak.com.tr/badges/designed-maintained-with-tan.svg)](https://www.muhammetsafak.com.tr/en/tan/)
 
 A lightweight TCP, UDP, TLS and SSL socket toolkit for PHP 8.1+. Both server
 and client sides share a clean, typed API built around enums and a small
