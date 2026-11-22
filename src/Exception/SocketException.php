@@ -6,6 +6,4 @@ namespace InitPHP\Socket\Exception;
 
 use RuntimeException;
 
-class SocketException extends RuntimeException implements SocketExceptionInterface
-{
-}
+class SocketException extends RuntimeException implements SocketExceptionInterface {}

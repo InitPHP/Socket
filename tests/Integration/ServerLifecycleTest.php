@@ -55,7 +55,7 @@ final class ServerLifecycleTest extends IntegrationTestCase
         $server = new TcpServer('127.0.0.1', 9000);
 
         $this->expectException(SocketException::class);
-        $server->tick(static fn () => null, 0.0);
+        $server->tick(static fn() => null, 0.0);
     }
 
     public function testStopFromInsideCallbackExitsLiveLoop(): void
@@ -71,7 +71,7 @@ final class ServerLifecycleTest extends IntegrationTestCase
 
         // Bring the client into the server's accept queue, then feed a byte
         // so the next live() iteration actually fires the callback.
-        $server->tick(static fn () => null, 0.2);
+        $server->tick(static fn() => null, 0.2);
         self::assertCount(1, $server->getClients());
         self::assertSame(4, $client->write('stop'));
 

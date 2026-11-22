@@ -24,7 +24,7 @@ final class TcpServerCloseTest extends IntegrationTestCase
         }
         // Accept all of them.
         for ($i = 0; $i < 3; ++$i) {
-            $server->tick(static fn () => null, 0.1);
+            $server->tick(static fn() => null, 0.1);
         }
         self::assertCount(3, $server->getClients());
 

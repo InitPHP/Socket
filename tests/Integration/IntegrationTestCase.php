@@ -52,7 +52,7 @@ abstract class IntegrationTestCase extends TestCase
 
         $path = tempnam(sys_get_temp_dir(), 'initphp-socket-tls-') . '.pem';
         file_put_contents($path, $certPem . $keyPem);
-        $this->registerCleanup(static fn (): bool => @unlink($path));
+        $this->registerCleanup(static fn(): bool => @unlink($path));
 
         return $path;
     }

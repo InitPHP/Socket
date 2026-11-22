@@ -25,7 +25,7 @@ final class UdpServerOptionsTest extends TestCase
     {
         $server = new UdpServer('127.0.0.1', 9000);
         $this->expectException(SocketException::class);
-        $server->tick(static fn () => null, 0.0);
+        $server->tick(static fn() => null, 0.0);
     }
 
     public function testGetHostAndPortReturnConfiguredValues(): void

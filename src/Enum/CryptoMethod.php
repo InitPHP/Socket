@@ -69,7 +69,7 @@ enum CryptoMethod: string
             throw new SocketInvalidArgumentException(\sprintf(
                 'Unsupported crypto method "%s". Expected one of: %s.',
                 $name,
-                implode(', ', array_map(static fn (self $c): string => $c->value, self::cases())),
+                implode(', ', array_map(static fn(self $c): string => $c->value, self::cases())),
             ));
         }
 

@@ -20,7 +20,7 @@ final class TcpDisconnectTest extends IntegrationTestCase
         $client->connect();
 
         // Accept the client.
-        $server->tick(static fn () => null, 0.2);
+        $server->tick(static fn() => null, 0.2);
         self::assertCount(1, $server->getClients());
 
         // Client drops the connection.
@@ -30,7 +30,7 @@ final class TcpDisconnectTest extends IntegrationTestCase
         // We may need a couple of iterations for the kernel to surface the close.
         $eviction = false;
         for ($i = 0; $i < 20 && !$eviction; ++$i) {
-            $server->tick(static fn () => null, 0.05);
+            $server->tick(static fn() => null, 0.05);
             if (\count($server->getClients()) === 0) {
                 $eviction = true;
             }
@@ -54,8 +54,8 @@ final class TcpDisconnectTest extends IntegrationTestCase
         $deadOnArrival->disconnect();
 
         // Accept both.
-        $server->tick(static fn () => null, 0.2);
-        $server->tick(static fn () => null, 0.2);
+        $server->tick(static fn() => null, 0.2);
+        $server->tick(static fn() => null, 0.2);
         self::assertCount(2, $server->getClients());
 
         // Broadcast — the dead client write call should silently no-op and

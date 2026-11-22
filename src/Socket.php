@@ -26,9 +26,7 @@ use InitPHP\Socket\Server\UDP as UdpServer;
  */
 final class Socket
 {
-    private function __construct()
-    {
-    }
+    private function __construct() {}
 
     /**
      * Create a server bound to $host:$port.
