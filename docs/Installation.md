@@ -6,12 +6,12 @@
 composer require initphp/socket
 ```
 
-The package follows [Semantic Versioning](https://semver.org/). The current major is **2.x**.
+The package follows [Semantic Versioning](https://semver.org/). The current major is **3.x**.
 
 ```json
 {
     "require": {
-        "initphp/socket": "^2.0"
+        "initphp/socket": "^3.0"
     }
 }
 ```
