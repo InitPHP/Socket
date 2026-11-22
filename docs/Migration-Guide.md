@@ -8,7 +8,7 @@ This guide is a step-by-step upgrade. The public surface stays small, so the wor
 
 | Aspect | 1.x | 2.x |
 |---|---|---|
-| PHP | `>=7.4` | `^8.2` (2.0.0 itself required `^8.1`) |
+| PHP | `>=7.4` | `^8.1` in 2.x; `^8.2` from 3.0.0 |
 | Required extensions | `ext-sockets` | `ext-sockets`, `ext-openssl` |
 | CI tested versions | n/a | 8.2, 8.3, 8.4, 8.5 |
 
