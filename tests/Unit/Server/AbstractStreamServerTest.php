@@ -45,7 +45,7 @@ final class AbstractStreamServerTest extends TestCase
     {
         $server = new TlsServer('127.0.0.1', 9443);
         $this->expectException(SocketException::class);
-        $server->tick(static fn () => null, 0.0);
+        $server->tick(static fn() => null, 0.0);
     }
 
 }

@@ -22,8 +22,7 @@ final class UdpServerCloseTest extends IntegrationTestCase
         $this->registerCleanup($client->disconnect(...));
 
         $client->write('greet');
-        $server->tick(static function () {
-        }, 0.3);
+        $server->tick(static function () {}, 0.3);
         self::assertCount(1, $server->getClients());
 
         self::assertTrue($server->close());

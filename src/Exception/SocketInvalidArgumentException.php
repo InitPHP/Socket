@@ -6,6 +6,4 @@ namespace InitPHP\Socket\Exception;
 
 use InvalidArgumentException;
 
-class SocketInvalidArgumentException extends InvalidArgumentException implements SocketExceptionInterface
-{
-}
+class SocketInvalidArgumentException extends InvalidArgumentException implements SocketExceptionInterface {}

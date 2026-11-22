@@ -24,7 +24,7 @@ final class StreamClientIoTest extends IntegrationTestCase
         $errStr = '';
         $server = stream_socket_server("tcp://127.0.0.1:{$port}", $errNo, $errStr);
         self::assertNotFalse($server, "stream_socket_server failed: {$errStr}");
-        $this->registerCleanup(static fn () => @fclose($server));
+        $this->registerCleanup(static fn() => @fclose($server));
 
         $client = new PlainStreamClient('127.0.0.1', $port, 2.0);
         $client->option('verify_peer', false)
@@ -35,7 +35,7 @@ final class StreamClientIoTest extends IntegrationTestCase
 
         $peer = stream_socket_accept($server, 1.0);
         self::assertNotFalse($peer);
-        $this->registerCleanup(static fn () => @fclose($peer));
+        $this->registerCleanup(static fn() => @fclose($peer));
 
         self::assertSame(5, $client->write('hello'));
         // Allow the kernel to deliver.
@@ -64,7 +64,7 @@ final class StreamClientIoTest extends IntegrationTestCase
         $errStr = '';
         $server = stream_socket_server("tcp://127.0.0.1:{$port}", $errNo, $errStr);
         self::assertNotFalse($server);
-        $this->registerCleanup(static fn () => @fclose($server));
+        $this->registerCleanup(static fn() => @fclose($server));
 
         $client = new PlainStreamClient('127.0.0.1', $port);
         $client->connect();
@@ -81,7 +81,7 @@ final class StreamClientIoTest extends IntegrationTestCase
         $errStr = '';
         $server = stream_socket_server("tcp://127.0.0.1:{$port}", $errNo, $errStr);
         self::assertNotFalse($server);
-        $this->registerCleanup(static fn () => @fclose($server));
+        $this->registerCleanup(static fn() => @fclose($server));
 
         $client = new PlainStreamClient('127.0.0.1', $port);
         $client->connect();

@@ -6,6 +6,4 @@ namespace InitPHP\Socket\Exception;
 
 use Throwable;
 
-interface SocketExceptionInterface extends Throwable
-{
-}
+interface SocketExceptionInterface extends Throwable {}

@@ -11,9 +11,7 @@ final class ServerConnection implements SocketConnectionInterface
 {
     private int|string|null $id = null;
 
-    public function __construct(private readonly ChannelInterface $channel)
-    {
-    }
+    public function __construct(private readonly ChannelInterface $channel) {}
 
     public function setId(int|string $id): static
     {

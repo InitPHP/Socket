@@ -148,7 +148,7 @@ final class AbstractServerBroadcastTest extends TestCase
     {
         \assert($channel instanceof FakeChannel);
 
-        return array_map(static fn (array $call): string => $call[0], $channel->writeCalls);
+        return array_map(static fn(array $call): string => $call[0], $channel->writeCalls);
     }
 }
 

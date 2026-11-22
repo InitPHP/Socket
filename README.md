@@ -7,7 +7,7 @@
 [![CI](https://github.com/InitPHP/Socket/actions/workflows/ci.yml/badge.svg)](https://github.com/InitPHP/Socket/actions/workflows/ci.yml)
 [![Designed & Maintained with Tan](https://muhammetsafak.com/badges/designed-maintained-with-tan.svg)](https://muhammetsafak.com/tan/)
 
-A lightweight TCP, UDP, TLS and SSL socket toolkit for PHP 8.1+. Both server
+A lightweight TCP, UDP, TLS and SSL socket toolkit for PHP 8.2+. Both server
 and client sides share a clean, typed API built around enums and a small
 `Channel` strategy so each transport plugs in without `switch` ladders.
 
@@ -25,7 +25,7 @@ $server->live(function ($srv, $conn) {
 
 ## Requirements
 
-- PHP **8.1+**
+- PHP **8.2+**
 - ext-sockets
 - ext-openssl (TLS / SSL)
 - ext-pcntl (only for the integration test suite)
@@ -258,7 +258,7 @@ composer cs-fix     # Apply style fixes
 composer qa         # All of the above
 ```
 
-CI runs the full QA pipeline on PHP 8.1, 8.2 and 8.3.
+CI runs the full QA pipeline on PHP 8.2, 8.3, 8.4 and 8.5.
 
 ## Contributing
 

@@ -24,7 +24,7 @@ final class TcpEchoTest extends IntegrationTestCase
         $this->registerCleanup($client->disconnect(...));
 
         // First tick: pick up the new connection from the listen backlog.
-        $server->tick(static fn () => null, 0.5);
+        $server->tick(static fn() => null, 0.5);
         self::assertCount(1, $server->getClients());
 
         // Client → server payload.
@@ -69,8 +69,8 @@ final class TcpEchoTest extends IntegrationTestCase
         $this->registerCleanup($clientB->disconnect(...));
 
         // Accept both pending connections.
-        $server->tick(static fn () => null, 0.2);
-        $server->tick(static fn () => null, 0.2);
+        $server->tick(static fn() => null, 0.2);
+        $server->tick(static fn() => null, 0.2);
         self::assertCount(2, $server->getClients());
 
         self::assertTrue($server->broadcast('beacon'));
