@@ -1,0 +1,16 @@
+name: Wiki
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "docs/**"
+      - ".github/workflows/wiki-sync.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  wiki:
+    uses: InitPHP/.github/.github/workflows/wiki-sync.yml@main
