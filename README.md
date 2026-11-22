@@ -238,14 +238,13 @@ while ($yourEventLoop->running()) {
 
 ## Documentation
 
-In-depth guides live under [`docs/`](./docs):
+In-depth guides live under [`docs/`](./docs/Home.md):
 
-- [Getting started](./docs/getting-started.md)
-- [Architecture](./docs/architecture.md)
-- Servers: [TCP](./docs/server/tcp.md) · [UDP](./docs/server/udp.md) · [TLS](./docs/server/tls.md) · [SSL](./docs/server/ssl.md)
-- Clients: [TCP](./docs/client/tcp.md) · [UDP](./docs/client/udp.md) · [TLS](./docs/client/tls.md) · [SSL](./docs/client/ssl.md)
-- Cookbook: [Chat server](./docs/cookbook/chat-server.md) · [SMTP client](./docs/cookbook/smtp-client.md)
-- [Migrating from 1.x](./docs/migration-1.x-to-2.x.md)
+- [Getting started](./docs/Quick-Start.md)
+- [Architecture](./docs/Architecture.md)
+- Servers and clients: [TCP](./docs/Transport-TCP.md) · [UDP](./docs/Transport-UDP.md) · [TLS](./docs/Transport-TLS.md) · [SSL](./docs/Transport-SSL.md)
+- Cookbook: [Chat server](./docs/Recipe-Chat-Server.md) · [SMTP client](./docs/Recipe-SMTP-Client.md)
+- [Migrating from 1.x](./docs/Migration-Guide.md)
 
 ## Development
 

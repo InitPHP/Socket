@@ -1,0 +1,1 @@
+**[initphp/socket](https://github.com/InitPHP/Socket)** · MIT · PHP 8.2+ · part of the [InitPHP](https://github.com/InitPHP) family · file issues at [InitPHP/Socket/issues](https://github.com/InitPHP/Socket/issues)
