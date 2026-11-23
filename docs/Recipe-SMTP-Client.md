@@ -13,9 +13,9 @@ require __DIR__ . '/vendor/autoload.php';
 use InitPHP\Socket\Socket;
 use InitPHP\Socket\Enum\Transport;
 
-$client = Socket::client(Transport::SSL, 'smtp.gmail.com', 465, timeout: 10.0)
-    ->option('verify_peer',      false)
-    ->option('verify_peer_name', false);
+// Certificate and host-name verification stay on (the default): the server's
+// certificate is checked against the system trust store.
+$client = Socket::client(Transport::SSL, 'smtp.gmail.com', 465, timeout: 10.0);
 
 $client->connect();
 
@@ -47,7 +47,7 @@ Expected output (truncated):
 
 - **`Transport::SSL`** — Gmail's port 465 serves implicit TLS; the connection is encrypted from the first byte. For port 587 you would start with `Transport::TCP` and upgrade in place with `crypto()` after `STARTTLS`.
 - **`timeout: 10.0`** — the connect (and TLS handshake) must finish inside this budget.
-- **`verify_peer`** is set to `false` here to keep the snippet self-contained. **In production** point `cafile` at the system trust store (`/etc/ssl/certs/ca-certificates.crt` on Debian/Ubuntu, `/etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem` on RHEL/Alma) and leave `verify_peer` on.
+- **No `verify_peer` override** — peer and host-name verification are on by default, so the snippet needs no TLS options for a server with a publicly trusted certificate such as Gmail's. If PHP cannot find your system trust store, set `cafile` to it (`/etc/ssl/certs/ca-certificates.crt` on Debian/Ubuntu, `/etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem` on RHEL/Alma) instead of turning verification off. Never disable `verify_peer` once you add `AUTH`: a man-in-the-middle could read the credentials.
 
 ## Reading SMTP responses cleanly
 
