@@ -132,9 +132,9 @@ $server->live(function (SocketServerInterface $srv, SocketConnectionInterface $c
 use InitPHP\Socket\Socket;
 use InitPHP\Socket\Enum\Transport;
 
-$client = Socket::client(Transport::SSL, 'smtp.gmail.com', 465, timeout: 10.0)
-    ->option('verify_peer', false)
-    ->option('verify_peer_name', false);
+// The server certificate and host name are verified against the system trust
+// store by default (verify_peer / verify_peer_name are on) — leave them on.
+$client = Socket::client(Transport::SSL, 'smtp.gmail.com', 465, timeout: 10.0);
 
 $client->connect();
 $client->write("EHLO [127.0.0.1]\r\n");
