@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 and this project adheres to [Semantic Versioning 2.0.0](https://semver.org/).
 
+## [3.0.1] - 2026-11-25
+
+### Documentation
+
+- The README, the SMTP client recipe and the SSL transport page no longer switch
+  off `verify_peer` and `verify_peer_name`; the examples keep TLS certificate and
+  host-name verification on.
+
 ## [3.0.0] - 2026-11-22
 
 ### Changed (breaking)
@@ -119,5 +127,6 @@ PHP 8.1+ typing.
 See [`docs/migration-1.x-to-2.x.md`](./docs/migration-1.x-to-2.x.md) for
 a step-by-step upgrade guide.
 
+[3.0.1]: https://github.com/InitPHP/Socket/compare/3.0.0...3.0.1
 [3.0.0]: https://github.com/InitPHP/Socket/compare/2.0.0...3.0.0
 [2.0.0]: https://github.com/InitPHP/Socket/releases/tag/v2.0.0
