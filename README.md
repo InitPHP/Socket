@@ -257,7 +257,7 @@ composer cs-fix     # Apply style fixes
 composer qa         # All of the above
 ```
 
-CI runs the full QA pipeline on PHP 8.2, 8.3, 8.4 and 8.5.
+CI runs the full QA pipeline on PHP 8.2, 8.3, 8.4, 8.5 and 8.6.
 
 ## Contributing
 
